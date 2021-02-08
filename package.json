@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/odiinthefirst/tryzy-scoreboard#readme",
   "dependencies": {
+    "better-sqlite3": "^7.1.2",
     "discord.js": "^12.5.1",
-    "hypixel-api": "^1.2.0"
+    "hypixel-api": "^1.2.0",
+    "node-gyp": "^7.1.2"
   }
 }
