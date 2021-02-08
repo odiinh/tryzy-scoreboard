@@ -1,0 +1,23 @@
+{
+  "name": "tryzy-scoreboard",
+  "version": "1.0.0",
+  "description": "bob gang",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/odiinthefirst/tryzy-scoreboard.git"
+  },
+  "author": "odiinthefirst",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/odiinthefirst/tryzy-scoreboard/issues"
+  },
+  "homepage": "https://github.com/odiinthefirst/tryzy-scoreboard#readme",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "hypixel-api": "^1.2.0"
+  }
+}
