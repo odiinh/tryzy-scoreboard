@@ -27,6 +27,28 @@ client.on('ready', () => {
 
 
 client.on('message', msg => {
+  if (msg.content === 'b!help') {
+    const exampleEmbed = new Discord.MessageEmbed()
+      .setColor('#0000f9')
+      .setTitle(`Help!`)
+      .setURL("https://www.youtube.com/watch?v=tet1RnG-toI")
+      .setDescription(`Hello, I'm Tryzy Scoreboard. A bot dedicated to the Tryzy Bedwars Tounament!\n Here are my commands to help you use me!`)
+      .addFields(
+        { name: 'b!help', value: "`"+"Brings up this message in the executor's DMs."+"`"},
+        { name: 'b!ping', value: "`"+"Pings the bot to see if its awake! It also tells you the current latency of the bot."+"`"},
+        { name: 'b!bw [MC Username]', value: "`"+"Uses the Hypixel API to do a BedWars lookup on a player.\n*e.g. b!bw Technoblade* "+"`"},
+        { name: 'b!sb [Number of results or all]', value: "`"+"Shows you the current tournament leaderboard!"+"`"},
+        { name: 'b!myscore', value: "`"+"Shows you your current tournament stats! (Games, Points, Wins, Losses)."+"`"},
+        { name: '\u200B', value: '\u200B' },
+        { name: 'HOST COMMANDS: ONLY HOSTS CAN EXECUTE THESE COMMANDS!', value: '\u200B' },
+        { name: 'b!addwin [Mention Member]', value: "`"+"Adds a win, point and game played to the specified user."+"`"},
+        { name: 'b!addwin [Mention Member]', value: "`"+"Adds a loss and game played, and removes a point from specified user."+"`"},
+      )
+      .setTimestamp()
+      .setFooter('By Odiin#0001.', 'https://i.imgur.com/gtSR0hn.gif');
+
+      msg.author.send(exampleEmbed);
+  }
   if (msg.content.startsWith('b!bw ')) {
 
     const playername = msg.content.substr(5)
@@ -92,8 +114,7 @@ client.on('message', msg => {
 
       msg.channel.send(exampleEmbed);
   }
-  if (msg.content.startsWith('b!sb myscore')) {
-
+  if (msg.content.startsWith('b!myscore')) {
     try {
       score = client.getScore.get(msg.author.id);
       if (!score) {
@@ -108,12 +129,8 @@ client.on('message', msg => {
       const exampleEmbed = new Discord.MessageEmbed()
       .setColor('#00f000')
       .setTitle(msg.author.username)
-      .addFields(
-        { name: 'Games', value: "`"+score.games+"`", inline: true },
-        { name: 'Points', value: "`"+score.points+"`", inline: true },
-        { name: 'Wins', value: "`"+score.wins+"`", inline: true },
-        { name: 'Losses', value: "`"+score.losses+"`", inline: true },
-      )
+      .addField(embed.addField(client.users.cache.get(score.id).tag, "Points: `"+score.points+"` Games: `"+score.games+"` Wins: `"+score.wins+"` Losses: `"+score.losses+"`"))
+      
       msg.channel.send(exampleEmbed);
 
       client.setScore.run(score);
@@ -127,21 +144,55 @@ client.on('message', msg => {
   
     }
   }
-  if (msg.content === "b!sb") {
-    msg.guild.members.fetch()
+  if (msg.content.startsWith("b!sb ")) {
     try {
-      const top10 = sql.prepare("SELECT * FROM scores ORDER BY points DESC;").all()
-      const embed = new Discord.MessageEmbed()
-        .setTitle("Leaderboard")
-        .setDescription("Our leaderboard!")
-        .setColor('#0000f9')
+      msg.guild.members.fetch()
+      const params = msg.content.substr(5)
+      if (!params) {
+        const embed = new Discord.MessageEmbed()
+        .setTitle("Define Amount")
+        .setDescription(`Please specify the amount of results you would like, e.g. b!sb 10 or b!sb all`)
+        .setColor('#f00000')
         .setFooter('By Odiin#0001.', 'https://i.imgur.com/gtSR0hn.gif');
-      var i = 1;
-      for(const data of top10) {
-          embed.addField(i+": "+client.users.cache.get(data.id).tag, "Points: `"+data.points+"` Games: `"+data.games+"` Wins: `"+data.wins+"` Losses: `"+data.losses+"`");
-          i++
-        }
-      msg.channel.send(embed)
+        msg.channel.send(embed)
+      }
+      if (params == "all") {
+        const board = sql.prepare(`SELECT * FROM scores ORDER BY points DESC;`).all()
+        const embed = new Discord.MessageEmbed()
+        .setTitle("Leaderboard")
+        .setDescription(`Our FULL leaderboard!`)
+        .setColor('#0000f9')
+        .setFooter('By Odiin#0001.', 'https://i.imgur.com/gtSR0hn.gif')
+        var i = 1;
+        for(const data of board) {
+            embed.addField(i+": "+client.users.cache.get(data.id).tag, "Points: `"+data.points+"` Games: `"+data.games+"` Wins: `"+data.wins+"` Losses: `"+data.losses+"`");
+            i++
+          }
+        msg.channel.send(embed)
+      }
+
+      else if (parseInt(params) >= 1) {
+        const board = sql.prepare(`SELECT * FROM scores ORDER BY points DESC LIMIT ${params};`).all()
+        const embed = new Discord.MessageEmbed()
+        .setTitle("Leaderboard")
+        .setDescription(`The top ${params} entries from our leaderboard!`)
+        .setColor('#0000f9')
+        .setFooter('By Odiin#0001.', 'https://i.imgur.com/gtSR0hn.gif')
+        var i = 1;
+        for(const data of board) {
+            embed.addField(i+": "+client.users.cache.get(data.id).tag, "Points: `"+data.points+"` Games: `"+data.games+"` Wins: `"+data.wins+"` Losses: `"+data.losses+"`");
+            i++
+          }
+        msg.channel.send(embed)
+      }
+      else {
+        const embed = new Discord.MessageEmbed()
+        .setTitle("ERROR")
+        .setDescription(`Please make sure your amount of results requested is a **whole number greater than 1**!`)
+        .setColor('#ff0000')
+        .setFooter('By Odiin#0001.', 'https://i.imgur.com/gtSR0hn.gif')
+        msg.channel.send(embed)
+      }
     } catch (error){
       console.log(error)
       const exampleEmbed = new Discord.MessageEmbed()
@@ -151,68 +202,96 @@ client.on('message', msg => {
       msg.channel.send(exampleEmbed);
     }
   }
-  if (msg.content.startsWith('b!sb addwin ')) {
-    try {
-      const userID = msg.mentions.users.first().id
-    console.log(userID)
-    score = client.getScore.get(userID);
-    if (!score) {
-      score = {
-        id: userID,
-        points: 1,
-        games: 1,
-        wins: 1,
-        losses: 0
-      }
-      client.setScore.run(score);
-    }
-    else {
-      score.wins++;
-      score.points++;
-      score.games++;
-      client.setScore.run(score);
-    }
-    } catch (error){
-      const exampleEmbed = new Discord.MessageEmbed()
-      .setColor('#ff0000')
-      .setTitle(String(error))
-      .setDescription("**Make sure you mentioned the user!**\n*If you still get this problem, create a support ticket!*")
-      msg.channel.send(exampleEmbed);
-  
-    }
-
-  }
-  if (msg.content.startsWith('b!sb addloss ')) {
-    try {
-      const userID = msg.mentions.users.first().id
-      console.log(userID)
-      score = client.getScore.get(userID);
-      if (!score) {
-        score = {
-          id: userID,
-          points: -1,
-          games: 1,
-          wins: 0,
-          losses: 1
+  if (msg.content.startsWith('b!addwin ') || msg.content.startsWith('b!aw ')) {
+    if (msg.guild.member(msg.author.id).roles.cache.has("808061512434450442")){
+      try {
+        const userID = msg.mentions.users.first().id
+        console.log(userID)
+        score = client.getScore.get(userID);
+        if (!score) {
+          score = {
+            id: userID,
+            points: 3,
+            games: 1,
+            wins: 1,
+            losses: 0
+          }
+          client.setScore.run(score);
         }
-        client.setScore.run(score);
-      }
-      else {
-        score.losses++;
-        score.points--;
-        score.games++;
-        client.setScore.run(score);
-      }
-    } catch (error){
-      const exampleEmbed = new Discord.MessageEmbed()
-      .setColor('#ff0000')
-      .setTitle(String(error))
-      .setDescription("**Make sure you mentioned the user!**\n*If you still get this problem, create a support ticket!*")
-      msg.channel.send(exampleEmbed);
-  
-    }
+        else {
+          score.wins++;
+          score.points++;
+          score.points++;
+          score.points++;
+          score.games++;
+          client.setScore.run(score);
+        }
+        const exampleEmbed = new Discord.MessageEmbed()
+        .setColor('#00f000')
+        .setTitle(`DONE!`)
+        .setDescription(`Added win to <@${userID}>`)
+        .setTimestamp()
+        .setFooter('By Odiin#0001.', 'https://i.imgur.com/gtSR0hn.gif');
+        msg.channel.send(exampleEmbed);
+      } catch (error){
+        const exampleEmbed = new Discord.MessageEmbed()
+        .setColor('#ff0000')
+        .setTitle(String(error))
+        .setDescription("Make sure you mentioned the user!\n*If you still get this problem, create a support ticket!*")
+        msg.channel.send(exampleEmbed);
     
-
+      }
+    } else {
+      const exampleEmbed = new Discord.MessageEmbed()
+        .setColor('#ff0000')
+        .setTitle("Permission Denied")
+        .setDescription("**If you're supposed to be doing this, make sure you have the <@&808061512434450442> role and in the Tryzy Tournaments Server!**")
+        msg.channel.send(exampleEmbed);
+    }
+  }
+  if (msg.content.startsWith('b!addloss ') || msg.content.startsWith('b!al ')) {
+    if (msg.guild.member(msg.author.id).roles.cache.has("808061512434450442")){
+      try {
+        const userID = msg.mentions.users.first().id
+        console.log(userID)
+        score = client.getScore.get(userID);
+        if (!score) {
+          score = {
+            id: userID,
+            points: -1,
+            games: 1,
+            wins: 0,
+            losses: 1
+          }
+          client.setScore.run(score);
+        }
+        else {
+          score.losses++;
+          score.points--;
+          score.games++;
+          client.setScore.run(score);
+        }
+        const exampleEmbed = new Discord.MessageEmbed()
+        .setColor('#f00000')
+        .setTitle(`DONE!`)
+        .setDescription(`Added loss to <@${userID}>`)
+        .setTimestamp()
+        .setFooter('By Odiin#0001.', 'https://i.imgur.com/gtSR0hn.gif');
+        msg.channel.send(exampleEmbed);
+      } catch (error){
+        const exampleEmbed = new Discord.MessageEmbed()
+        .setColor('#ff0000')
+        .setTitle(String(error))
+        .setDescription("**Make sure you mentioned the user!**\n*If you still get this problem, create a support ticket!*")
+        msg.channel.send(exampleEmbed);
+      }
+    } else {
+      const exampleEmbed = new Discord.MessageEmbed()
+        .setColor('#ff0000')
+        .setTitle("Permission Denied")
+        .setDescription("**If you're supposed to be doing this, make sure you have the <@&808061512434450442> role and in the Tryzy Tournaments Server!**")
+        msg.channel.send(exampleEmbed);
+    }
   }
   })
 
