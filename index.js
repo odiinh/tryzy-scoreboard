@@ -129,7 +129,7 @@ client.on('message', msg => {
       const exampleEmbed = new Discord.MessageEmbed()
       .setColor('#00f000')
       .setTitle(msg.author.username)
-      .addField(embed.addField(client.users.cache.get(score.id).tag, "Points: `"+score.points+"` Games: `"+score.games+"` Wins: `"+score.wins+"` Losses: `"+score.losses+"`"))
+      .addField(examplEmbed.addField(client.users.cache.get(score.id).tag, "Points: `"+score.points+"` Games: `"+score.games+"` Wins: `"+score.wins+"` Losses: `"+score.losses+"`"))
       
       msg.channel.send(exampleEmbed);
 
