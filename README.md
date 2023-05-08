@@ -36,9 +36,4 @@ Usage
 *   `b!addwin [Mention Member]`: Adds a win, point, and game played to the specified user (host-only command).
 *   `b!addloss [Mention Member]`: Adds a loss and game played, and removes a point from the specified user (host-only command).
 
-Contributors
-------------
-
-*   Odiin (Discord: Odiin#0001)
-
 If you have any questions or feedback, feel free to reach out to me on Discord.
